@@ -1,4 +1,4 @@
-module gochess
+module github.com/nsmoker/gochess
 
 go 1.20
 

@@ -6,4 +6,4 @@ message Position {
     string pgn = 2;
 }
 
-option go_package = "gochess";
+option go_package = "github.com/nsmoker/gochess";
