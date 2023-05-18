@@ -1,0 +1,9 @@
+syntax = "proto3";
+package gochess;
+
+message Position {
+    string fen = 1;
+    string pgn = 2;
+}
+
+option go_package = "gochess";
