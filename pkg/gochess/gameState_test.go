@@ -404,24 +404,24 @@ func TestKnightCheck(t *testing.T) {
 func TestIsMoveLegal(t *testing.T) {
 	state := MakeStartingState()
 
-	e4 := Move{src_row: 1, src_col: 3, dest_row: 3, dest_col: 3}
+	e4 := Move{Src_row: 1, Src_col: 3, Dest_row: 3, Dest_col: 3}
 	if !state.IsMoveLegal(e4) {
 		t.Fatalf("%s should be legal for %s", e4.PrettyPrint(&state), state.Board.PrettyPrint())
 	}
 
-	ke2 := Move{src_row: 0, src_col: 3, dest_row: 1, dest_col: 3}
+	ke2 := Move{Src_row: 0, Src_col: 3, Dest_row: 1, Dest_col: 3}
 
 	if state.IsMoveLegal(ke2) {
 		t.Fatalf("%s should not be legal for %s", ke2.PrettyPrint(&state), state.Board.PrettyPrint())
 	}
 
-	nf3 := Move{src_row: 0, src_col: 1, dest_row: 2, dest_col: 2}
+	nf3 := Move{Src_row: 0, Src_col: 1, Dest_row: 2, Dest_col: 2}
 
 	if !state.IsMoveLegal(nf3) {
 		t.Fatalf("%s should be legal for %s", nf3.PrettyPrint(&state), state.Board.PrettyPrint())
 	}
 
-	ne2 := Move{src_row: 0, src_col: 1, dest_row: 1, dest_col: 3}
+	ne2 := Move{Src_row: 0, Src_col: 1, Dest_row: 1, Dest_col: 3}
 
 	if state.IsMoveLegal(ne2) {
 		t.Fatalf("%s should not be legal for %s", ne2.PrettyPrint(&state), state.Board.PrettyPrint())
@@ -430,7 +430,7 @@ func TestIsMoveLegal(t *testing.T) {
 	state.Board.RemovePiece(1, 4)
 	state.Board.RemovePiece(6, 4)
 
-	kd2 := Move{src_row: 0, src_col: 3, dest_row: 1, dest_col: 4}
+	kd2 := Move{Src_row: 0, Src_col: 3, Dest_row: 1, Dest_col: 4}
 	if state.IsMoveLegal(kd2) {
 		t.Fatalf("%s should not be legal for %s", kd2.PrettyPrint(&state), state.Board.PrettyPrint())
 	}
@@ -442,11 +442,11 @@ func TestEnPassantLegal(t *testing.T) {
 	state.Board.PlacePiece(3, 3, Pawn, White)
 	state.Board.PlacePiece(3, 4, Pawn, Black)
 
-	pm := Move{src_row: 0, src_col: 0, dest_row: 3, dest_col: 4}
+	pm := Move{Src_row: 0, Src_col: 0, Dest_row: 3, Dest_col: 4}
 
 	state.PreviousMove = &pm
 
-	ep := Move{src_row: 3, src_col: 3, dest_row: 4, dest_col: 4}
+	ep := Move{Src_row: 3, Src_col: 3, Dest_row: 4, Dest_col: 4}
 
 	if !state.IsMoveLegal(ep) {
 		t.Fatalf("%s should be legal for %s", ep.PrettyPrint(&state), state.Board.PrettyPrint())
@@ -464,7 +464,7 @@ func TestPawnMoveOccupied(t *testing.T) {
 
 	state.Board.PlacePiece(3, 3, Pawn, Black)
 
-	e4 := Move{src_row: 1, src_col: 3, dest_row: 3, dest_col: 3}
+	e4 := Move{Src_row: 1, Src_col: 3, Dest_row: 3, Dest_col: 3}
 
 	if state.IsMoveLegal(e4) {
 		t.Fatalf("%s should not be legal for %s", e4.PrettyPrint(&state), state.Board.PrettyPrint())
@@ -479,7 +479,7 @@ func TestCanCastle(t *testing.T) {
 
 	state.WhiteCanCastleKingside = true
 
-	castleShort := Move{src_row: 0, src_col: 3, dest_row: 0, dest_col: 1}
+	castleShort := Move{Src_row: 0, Src_col: 3, Dest_row: 0, Dest_col: 1}
 
 	if !state.IsMoveLegal(castleShort) {
 		t.Fatalf("%s should be legal for %s", castleShort.PrettyPrint(&state), state.Board.PrettyPrint())
@@ -493,7 +493,7 @@ func TestCantCastle(t *testing.T) {
 	state.Board.RemovePiece(0, 2)
 	state.WhiteCanCastleKingside = false
 
-	castleShort := Move{src_row: 0, src_col: 3, dest_row: 0, dest_col: 1}
+	castleShort := Move{Src_row: 0, Src_col: 3, Dest_row: 0, Dest_col: 1}
 
 	if state.IsMoveLegal(castleShort) {
 		t.Fatalf("%s should not be legal for %s when castling rights lost", castleShort.PrettyPrint(&state), state.Board.PrettyPrint())
@@ -503,7 +503,7 @@ func TestCantCastle(t *testing.T) {
 func TestCantCastleThroughPieces(t *testing.T) {
 	state := MakeStartingState()
 
-	castleShort := Move{src_row: 0, src_col: 3, dest_row: 0, dest_col: 1}
+	castleShort := Move{Src_row: 0, Src_col: 3, Dest_row: 0, Dest_col: 1}
 
 	if state.IsMoveLegal(castleShort) {
 		t.Fatalf("%s should not be legal for %s", castleShort.PrettyPrint(&state), state.Board.PrettyPrint())
@@ -517,7 +517,7 @@ func TestCanCastleQueenside(t *testing.T) {
 	state.Board.RemovePiece(0, 5)
 	state.Board.RemovePiece(0, 6)
 
-	castleLong := Move{src_row: 0, src_col: 3, dest_row: 0, dest_col: 5}
+	castleLong := Move{Src_row: 0, Src_col: 3, Dest_row: 0, Dest_col: 5}
 
 	if !state.IsMoveLegal(castleLong) {
 		t.Fatalf("%s should be legal for %s", castleLong.PrettyPrint(&state), state.Board.PrettyPrint())
@@ -533,7 +533,7 @@ func TestCantCastleThroughCheck(t *testing.T) {
 	state.Board.RemovePiece(1, 4)
 	state.Board.RemovePiece(6, 4)
 
-	castleLong := Move{src_row: 0, src_col: 3, dest_row: 0, dest_col: 5}
+	castleLong := Move{Src_row: 0, Src_col: 3, Dest_row: 0, Dest_col: 5}
 
 	if state.IsMoveLegal(castleLong) {
 		t.Fatalf("%s should not be legal for %s", castleLong.PrettyPrint(&state), state.Board.PrettyPrint())
@@ -543,7 +543,7 @@ func TestCantCastleThroughCheck(t *testing.T) {
 func TestTakeTurnSimple(t *testing.T) {
 	state := MakeStartingState()
 
-	e4 := Move{src_row: 1, src_col: 3, dest_row: 3, dest_col: 3}
+	e4 := Move{Src_row: 1, Src_col: 3, Dest_row: 3, Dest_col: 3}
 
 	state.TakeTurn(e4)
 
@@ -579,7 +579,7 @@ func TestTakeTurnPromotion(t *testing.T) {
 	state.Board.RemovePiece(7, 6)
 	state.Board.PlacePiece(6, 6, Pawn, White)
 
-	move := Move{src_row: 6, src_col: 6, dest_row: 7, dest_col: 6, isPromotion: true, promotionPiece: Queen}
+	move := Move{Src_row: 6, Src_col: 6, Dest_row: 7, Dest_col: 6, IsPromotion: true, PromotionPiece: Queen}
 
 	state.TakeTurn(move)
 
@@ -612,7 +612,7 @@ func TestTakeTurnCastles(t *testing.T) {
 	state.Board.RemovePiece(0, 1)
 	state.Board.RemovePiece(0, 2)
 
-	move := Move{src_row: 0, src_col: 3, dest_row: 0, dest_col: 1}
+	move := Move{Src_row: 0, Src_col: 3, Dest_row: 0, Dest_col: 1}
 
 	state.TakeTurn(move)
 
@@ -649,11 +649,11 @@ func TestTakeTurnEnPassant(t *testing.T) {
 	state.Board.PlacePiece(3, 3, Pawn, White)
 	state.Board.PlacePiece(3, 4, Pawn, Black)
 
-	pm := Move{src_row: 0, src_col: 0, dest_row: 3, dest_col: 4}
+	pm := Move{Src_row: 0, Src_col: 0, Dest_row: 3, Dest_col: 4}
 
 	state.PreviousMove = &pm
 
-	ep := Move{src_row: 3, src_col: 3, dest_row: 4, dest_col: 4}
+	ep := Move{Src_row: 3, Src_col: 3, Dest_row: 4, Dest_col: 4}
 
 	state.TakeTurn(ep)
 

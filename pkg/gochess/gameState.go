@@ -1,6 +1,7 @@
 package gochess
 
 import (
+	"log"
 	"math"
 )
 
@@ -29,8 +30,8 @@ func MakeStartingState() GameState {
 }
 
 func (state *GameState) IsMoveLegal(move Move) bool {
-	movingPiece := state.Board.PieceAt(move.src_row, move.src_col)
-	movingSide := state.Board.SideAt(move.src_row, move.src_col)
+	movingPiece := state.Board.PieceAt(move.Src_row, move.Src_col)
+	movingSide := state.Board.SideAt(move.Src_row, move.Src_col)
 
 	if movingSide == Black && state.IsWhiteTurn || movingSide == White && !state.IsWhiteTurn {
 		return false
@@ -42,30 +43,30 @@ func (state *GameState) IsMoveLegal(move Move) bool {
 	case Empty:
 		return false
 	case Pawn:
-		canMove := state.pawnCanMove(movingSide, move.src_row, move.src_col, move.dest_row, move.dest_col)
-		canMoveTo = state.pawnCanSee(movingSide, move.src_row, move.src_col, move.dest_row, move.dest_col) || canMove
+		canMove := state.pawnCanMove(movingSide, move.Src_row, move.Src_col, move.Dest_row, move.Dest_col)
+		canMoveTo = state.pawnCanSee(movingSide, move.Src_row, move.Src_col, move.Dest_row, move.Dest_col) || canMove
 	case Bishop:
-		canMoveTo = state.canSeeDiagonal(move.src_row, move.src_col, move.dest_row, move.dest_col)
+		canMoveTo = state.canSeeDiagonal(move.Src_row, move.Src_col, move.Dest_row, move.Dest_col)
 	case Knight:
-		canMoveTo = state.knightCanSee(move.src_row, move.src_col, move.dest_row, move.dest_col)
+		canMoveTo = state.knightCanSee(move.Src_row, move.Src_col, move.Dest_row, move.Dest_col)
 	case King:
-		canMoveTo = state.kingCanSee(movingSide, move.src_row, move.src_col, move.dest_row, move.dest_col)
+		canMoveTo = state.kingCanSee(movingSide, move.Src_row, move.Src_col, move.Dest_row, move.Dest_col)
 	case Queen:
-		canSeeDiagonal := state.canSeeDiagonal(move.src_row, move.src_col, move.dest_row, move.dest_col)
-		canMoveTo = state.canSeeRook(move.src_row, move.src_col, move.dest_row, move.dest_col) || canSeeDiagonal
+		canSeeDiagonal := state.canSeeDiagonal(move.Src_row, move.Src_col, move.Dest_row, move.Dest_col)
+		canMoveTo = state.canSeeRook(move.Src_row, move.Src_col, move.Dest_row, move.Dest_col) || canSeeDiagonal
 	case Rook:
-		canMoveTo = state.canSeeRook(move.src_row, move.src_col, move.dest_row, move.dest_col)
+		canMoveTo = state.canSeeRook(move.Src_row, move.Src_col, move.Dest_row, move.Dest_col)
 	}
 
-	legalWithoutCheck := canMoveTo && !state.squareTaken(movingSide, move.dest_row, move.dest_col)
+	legalWithoutCheck := canMoveTo && !state.squareTaken(movingSide, move.Dest_row, move.Dest_col)
 
 	var testState GameState
 	testState.Board = state.Board
 	testState.PreviousMove = state.PreviousMove
 	testState.PreviousState = state.PreviousState
 
-	testState.Board.PlacePiece(move.dest_row, move.dest_col, movingPiece, movingSide)
-	testState.Board.RemovePiece(move.src_row, move.src_col)
+	testState.Board.PlacePiece(move.Dest_row, move.Dest_col, movingPiece, movingSide)
+	testState.Board.RemovePiece(move.Src_row, move.Src_col)
 
 	return legalWithoutCheck && !testState.IsInCheck(movingSide)
 }
@@ -160,23 +161,23 @@ func (state *GameState) TakeTurn(move Move) bool {
 	if !state.IsMoveLegal(move) {
 		return false
 	} else {
-		movingPiece := state.Board.PieceAt(move.src_row, move.src_col)
-		movingSide := state.Board.SideAt(move.src_row, move.src_col)
+		movingPiece := state.Board.PieceAt(move.Src_row, move.Src_col)
+		movingSide := state.Board.SideAt(move.Src_row, move.Src_col)
 		if state.moveIsCastlesLong(move) {
-			state.Board.RemovePiece(move.src_row, 7)
-			state.Board.PlacePiece(move.src_row, 4, Rook, White)
+			state.Board.RemovePiece(move.Src_row, 7)
+			state.Board.PlacePiece(move.Src_row, 4, Rook, movingSide)
 		} else if state.moveIsCastlesShort(move) {
-			state.Board.RemovePiece(move.src_row, 0)
-			state.Board.PlacePiece(move.src_row, 2, Rook, White)
+			state.Board.RemovePiece(move.Src_row, 0)
+			state.Board.PlacePiece(move.Src_row, 2, Rook, movingSide)
 		} else if state.moveIsEnPassant(move) {
-			state.Board.RemovePiece(move.src_row, move.dest_col)
+			state.Board.RemovePiece(move.Src_row, move.Dest_col)
 		}
-		state.Board.RemovePiece(move.dest_row, move.dest_col)
-		state.Board.RemovePiece(move.src_row, move.src_col)
-		if move.isPromotion {
-			state.Board.PlacePiece(move.dest_row, move.dest_col, move.promotionPiece, movingSide)
+		state.Board.RemovePiece(move.Dest_row, move.Dest_col)
+		state.Board.RemovePiece(move.Src_row, move.Src_col)
+		if move.IsPromotion {
+			state.Board.PlacePiece(move.Dest_row, move.Dest_col, move.PromotionPiece, movingSide)
 		} else {
-			state.Board.PlacePiece(move.dest_row, move.dest_col, movingPiece, movingSide)
+			state.Board.PlacePiece(move.Dest_row, move.Dest_col, movingPiece, movingSide)
 		}
 
 		if movingPiece == King {
@@ -189,11 +190,11 @@ func (state *GameState) TakeTurn(move Move) bool {
 			}
 		} else if movingPiece == Rook {
 			if movingSide == White {
-				state.WhiteCanCastleKingside = state.WhiteCanCastleKingside && move.src_col != 0
-				state.WhiteCanCastleQueenside = state.WhiteCanCastleQueenside && move.src_row != 7
+				state.WhiteCanCastleKingside = state.WhiteCanCastleKingside && move.Src_col != 0
+				state.WhiteCanCastleQueenside = state.WhiteCanCastleQueenside && move.Src_row != 7
 			} else {
-				state.BlackCanCastleKingside = state.BlackCanCastleKingside && move.src_col != 0
-				state.BlackCanCastleQueenside = state.BlackCanCastleQueenside && move.src_row != 7
+				state.BlackCanCastleKingside = state.BlackCanCastleKingside && move.Src_col != 0
+				state.BlackCanCastleQueenside = state.BlackCanCastleQueenside && move.Src_row != 7
 			}
 		}
 
@@ -209,16 +210,16 @@ func (state *GameState) TakeTurn(move Move) bool {
 
 // The "move is special move" functions assume the move has already been determined to be legal. They are for identifying after the intial legality check.
 func (state *GameState) moveIsCastlesShort(move Move) bool {
-	return state.Board.PieceAt(move.src_row, move.src_col) == King && move.dest_col-move.src_col == -2
+	return state.Board.PieceAt(move.Src_row, move.Src_col) == King && move.Dest_col-move.Src_col == -2
 }
 
 func (state *GameState) moveIsCastlesLong(move Move) bool {
-	return state.Board.PieceAt(move.src_row, move.src_col) == King && move.dest_col-move.src_col == 2
+	return state.Board.PieceAt(move.Src_row, move.Src_col) == King && move.Dest_col-move.Src_col == 2
 }
 
 func (state *GameState) moveIsEnPassant(move Move) bool {
-	pa := state.Board.PieceAt(move.dest_row, move.dest_col)
-	return state.Board.PieceAt(move.src_row, move.src_col) == Pawn && math.Abs(float64(move.dest_col)-float64(move.src_col)) == 1 && pa == Empty
+	pa := state.Board.PieceAt(move.Dest_row, move.Dest_col)
+	return state.Board.PieceAt(move.Src_row, move.Src_col) == Pawn && math.Abs(float64(move.Dest_col)-float64(move.Src_col)) == 1 && pa == Empty
 }
 
 func (state *GameState) squareTaken(side Side, row int, col int) bool {
@@ -257,8 +258,8 @@ func (state *GameState) canSeeDiagonal(srcRow int, srcCol int, destRow int, dest
 		colDir := math.Copysign(1, float64(destCol-srcCol))
 		row := srcRow + int(rowDir)
 		col := srcCol + int(colDir)
-		for row > 0 && row < 8 && col > 0 && col < 8 && row != destRow && col != destCol {
-			if state.Board.PieceAt(row, col) != Empty {
+		for row >= 0 && row < 8 && col >= 0 && col < 8 && row != destRow && col != destCol {
+			if state.Board.SideAt(row, col) != Empty {
 				return false
 			}
 
@@ -289,12 +290,15 @@ func (state *GameState) pawnCanSee(side Side, srcRow int, srcCol int, destRow in
 		verticalRange = -1
 	}
 
+	log.Println("hi")
+	log.Println(state.Board.SideAt(destRow, destCol))
+
 	if destRow-srcRow == verticalRange && math.Abs(float64(srcCol-destCol)) == 1 {
 		if state.Board.SideAt(destRow, destCol) == otherside {
 			return true
 		} else {
 			if state.Board.PieceAt(srcRow, destCol) == Pawn && state.Board.SideAt(srcRow, destCol) == otherside {
-				if state.PreviousMove != nil && state.PreviousMove.dest_row == srcRow && state.PreviousMove.dest_col == destCol {
+				if state.PreviousMove != nil && state.PreviousMove.Dest_row == srcRow && state.PreviousMove.Dest_col == destCol {
 					return true
 				}
 			}
@@ -305,11 +309,11 @@ func (state *GameState) pawnCanSee(side Side, srcRow int, srcCol int, destRow in
 }
 
 func (state *GameState) pawnCanMove(side Side, srcRow int, srcCol int, destRow int, destCol int) bool {
-	var verticalRange int
+	var dir int
 	if side == White {
-		verticalRange = 1
+		dir = 1
 	} else {
-		verticalRange = -1
+		dir = -1
 	}
 
 	if srcCol-destCol == 0 {
@@ -320,14 +324,13 @@ func (state *GameState) pawnCanMove(side Side, srcRow int, srcCol int, destRow i
 			startingRow = 6
 		}
 
+		verticalRange := dir
 		if srcRow == startingRow {
-			verticalRange = int(math.Copysign(2, float64(verticalRange)))
+			verticalRange = int(math.Copysign(2, float64(dir)))
 		}
 
-		dir := int(math.Copysign(1, float64(verticalRange)))
-
 		if destRow-srcRow == verticalRange || destRow-srcRow == verticalRange-dir {
-			for row := srcRow + dir; row <= destRow; row += dir {
+			for row := srcRow + dir; row != destRow; row += dir {
 				if state.Board.SideAt(row, srcCol) != Empty {
 					return false
 				}

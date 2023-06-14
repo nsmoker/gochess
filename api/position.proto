@@ -3,7 +3,28 @@ package gochess;
 
 message Position {
     string fen = 1;
-    string pgn = 2;
+}
+
+message Coordinate {
+    int32 row = 1;
+    int32 col = 2;
+}
+
+message MoveMessage {
+    Coordinate from = 1;
+    Coordinate to = 2;
+    bool isPromotion = 3;
+    string pieceName = 4;
+}
+
+message MoveInPosition {
+    Position position = 1;
+    MoveMessage move = 2;
+}
+
+message MoveLegal {
+    Position position = 1;
+    bool legal = 2;
 }
 
 option go_package = "github.com/nsmoker/gochess";

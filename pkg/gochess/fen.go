@@ -1,7 +1,74 @@
 package gochess
 
-import "unicode"
-import "strconv"
+import (
+	"strconv"
+	"strings"
+	"unicode"
+)
+
+func ToFEN(state *GameState) string {
+	var fen strings.Builder
+	counter := 0
+	blacks := [6]string{"k", "q", "r", "b", "n", "p"}
+	whites := [6]string{"K", "Q", "R", "B", "N", "P"}
+	for row := 7; row >= 0; row -= 1 {
+		for col := 7; col >= 0; col -= 1 {
+			if state.Board.PieceAt(row, col) != Empty {
+				if counter > 0 {
+					fen.WriteString(strconv.Itoa(counter))
+					counter = 0
+				}
+				if state.Board.SideAt(row, col) == Black {
+					fen.WriteString(blacks[state.Board.PieceAt(row, col)])
+				} else {
+					fen.WriteString(whites[state.Board.PieceAt(row, col)])
+				}
+			} else {
+				counter += 1
+			}
+
+			if col == 0 {
+				if counter > 0 {
+					fen.WriteString(strconv.Itoa(counter))
+					counter = 0
+				}
+				fen.WriteString("/")
+			}
+		}
+	}
+
+	if state.IsWhiteTurn {
+		fen.WriteString(" w")
+	} else {
+		fen.WriteString(" b")
+	}
+
+	fen.WriteString(" ")
+
+	if state.WhiteCanCastleKingside {
+		fen.WriteString("K")
+	}
+
+	if state.WhiteCanCastleQueenside {
+		fen.WriteString("Q")
+	}
+
+	if state.BlackCanCastleKingside {
+		fen.WriteString("k")
+	}
+
+	if state.BlackCanCastleQueenside {
+		fen.WriteString("q")
+	}
+
+	if !(state.BlackCanCastleKingside || state.WhiteCanCastleKingside || state.BlackCanCastleQueenside || state.WhiteCanCastleQueenside) {
+		fen.WriteString("-")
+	}
+
+	fen.WriteString(" -")
+
+	return fen.String()
+}
 
 func ParseFEN(fen string) (GameState, error) {
 	var state GameState
@@ -23,7 +90,7 @@ func ParseFEN(fen string) (GameState, error) {
 			state.Board.PlacePiece(row, col, King, Black)
 		case 'q':
 			state.Board.PlacePiece(row, col, Queen, Black)
-		case 'p': 
+		case 'p':
 			state.Board.PlacePiece(row, col, Pawn, Black)
 		case 'R':
 			state.Board.PlacePiece(row, col, Rook, White)
@@ -90,15 +157,15 @@ func ParseFEN(fen string) (GameState, error) {
 		i++
 	}
 
-	// Fourth field 
+	// Fourth field
 	spaceReached = false
 	if fen[i] == '-' {
 		i += 2
 	} else {
 		col := 104 - fen[i]
-		row := fen[i + 1]
-		state.PreviousMove.dest_row = int(row)
-		state.PreviousMove.dest_col = int(col)
+		row := fen[i+1]
+		state.PreviousMove.Dest_row = int(row)
+		state.PreviousMove.Dest_col = int(col)
 	}
 
 	return state, nil

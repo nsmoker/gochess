@@ -26,7 +26,6 @@ type Position struct {
 	unknownFields protoimpl.UnknownFields
 
 	Fen string `protobuf:"bytes,1,opt,name=fen,proto3" json:"fen,omitempty"`
-	Pgn string `protobuf:"bytes,2,opt,name=pgn,proto3" json:"pgn,omitempty"`
 }
 
 func (x *Position) Reset() {
@@ -68,23 +67,276 @@ func (x *Position) GetFen() string {
 	return ""
 }
 
-func (x *Position) GetPgn() string {
+type Coordinate struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Row int32 `protobuf:"varint,1,opt,name=row,proto3" json:"row,omitempty"`
+	Col int32 `protobuf:"varint,2,opt,name=col,proto3" json:"col,omitempty"`
+}
+
+func (x *Coordinate) Reset() {
+	*x = Coordinate{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_position_proto_msgTypes[1]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *Coordinate) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Coordinate) ProtoMessage() {}
+
+func (x *Coordinate) ProtoReflect() protoreflect.Message {
+	mi := &file_position_proto_msgTypes[1]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Coordinate.ProtoReflect.Descriptor instead.
+func (*Coordinate) Descriptor() ([]byte, []int) {
+	return file_position_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *Coordinate) GetRow() int32 {
 	if x != nil {
-		return x.Pgn
+		return x.Row
+	}
+	return 0
+}
+
+func (x *Coordinate) GetCol() int32 {
+	if x != nil {
+		return x.Col
+	}
+	return 0
+}
+
+type MoveMessage struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	From        *Coordinate `protobuf:"bytes,1,opt,name=from,proto3" json:"from,omitempty"`
+	To          *Coordinate `protobuf:"bytes,2,opt,name=to,proto3" json:"to,omitempty"`
+	IsPromotion bool        `protobuf:"varint,3,opt,name=isPromotion,proto3" json:"isPromotion,omitempty"`
+	PieceName   string      `protobuf:"bytes,4,opt,name=pieceName,proto3" json:"pieceName,omitempty"`
+}
+
+func (x *MoveMessage) Reset() {
+	*x = MoveMessage{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_position_proto_msgTypes[2]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *MoveMessage) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*MoveMessage) ProtoMessage() {}
+
+func (x *MoveMessage) ProtoReflect() protoreflect.Message {
+	mi := &file_position_proto_msgTypes[2]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use MoveMessage.ProtoReflect.Descriptor instead.
+func (*MoveMessage) Descriptor() ([]byte, []int) {
+	return file_position_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *MoveMessage) GetFrom() *Coordinate {
+	if x != nil {
+		return x.From
+	}
+	return nil
+}
+
+func (x *MoveMessage) GetTo() *Coordinate {
+	if x != nil {
+		return x.To
+	}
+	return nil
+}
+
+func (x *MoveMessage) GetIsPromotion() bool {
+	if x != nil {
+		return x.IsPromotion
+	}
+	return false
+}
+
+func (x *MoveMessage) GetPieceName() string {
+	if x != nil {
+		return x.PieceName
 	}
 	return ""
+}
+
+type MoveInPosition struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Position *Position    `protobuf:"bytes,1,opt,name=position,proto3" json:"position,omitempty"`
+	Move     *MoveMessage `protobuf:"bytes,2,opt,name=move,proto3" json:"move,omitempty"`
+}
+
+func (x *MoveInPosition) Reset() {
+	*x = MoveInPosition{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_position_proto_msgTypes[3]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *MoveInPosition) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*MoveInPosition) ProtoMessage() {}
+
+func (x *MoveInPosition) ProtoReflect() protoreflect.Message {
+	mi := &file_position_proto_msgTypes[3]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use MoveInPosition.ProtoReflect.Descriptor instead.
+func (*MoveInPosition) Descriptor() ([]byte, []int) {
+	return file_position_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *MoveInPosition) GetPosition() *Position {
+	if x != nil {
+		return x.Position
+	}
+	return nil
+}
+
+func (x *MoveInPosition) GetMove() *MoveMessage {
+	if x != nil {
+		return x.Move
+	}
+	return nil
+}
+
+type MoveLegal struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Position *Position `protobuf:"bytes,1,opt,name=position,proto3" json:"position,omitempty"`
+	Legal    bool      `protobuf:"varint,2,opt,name=legal,proto3" json:"legal,omitempty"`
+}
+
+func (x *MoveLegal) Reset() {
+	*x = MoveLegal{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_position_proto_msgTypes[4]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *MoveLegal) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*MoveLegal) ProtoMessage() {}
+
+func (x *MoveLegal) ProtoReflect() protoreflect.Message {
+	mi := &file_position_proto_msgTypes[4]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use MoveLegal.ProtoReflect.Descriptor instead.
+func (*MoveLegal) Descriptor() ([]byte, []int) {
+	return file_position_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *MoveLegal) GetPosition() *Position {
+	if x != nil {
+		return x.Position
+	}
+	return nil
+}
+
+func (x *MoveLegal) GetLegal() bool {
+	if x != nil {
+		return x.Legal
+	}
+	return false
 }
 
 var File_position_proto protoreflect.FileDescriptor
 
 var file_position_proto_rawDesc = []byte{
 	0x0a, 0x0e, 0x70, 0x6f, 0x73, 0x69, 0x74, 0x69, 0x6f, 0x6e, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f,
-	0x12, 0x07, 0x67, 0x6f, 0x63, 0x68, 0x65, 0x73, 0x73, 0x22, 0x2e, 0x0a, 0x08, 0x50, 0x6f, 0x73,
+	0x12, 0x07, 0x67, 0x6f, 0x63, 0x68, 0x65, 0x73, 0x73, 0x22, 0x1c, 0x0a, 0x08, 0x50, 0x6f, 0x73,
 	0x69, 0x74, 0x69, 0x6f, 0x6e, 0x12, 0x10, 0x0a, 0x03, 0x66, 0x65, 0x6e, 0x18, 0x01, 0x20, 0x01,
-	0x28, 0x09, 0x52, 0x03, 0x66, 0x65, 0x6e, 0x12, 0x10, 0x0a, 0x03, 0x70, 0x67, 0x6e, 0x18, 0x02,
-	0x20, 0x01, 0x28, 0x09, 0x52, 0x03, 0x70, 0x67, 0x6e, 0x42, 0x14, 0x5a, 0x12, 0x63, 0x68, 0x65,
-	0x73, 0x73, 0x74, 0x68, 0x69, 0x6e, 0x67, 0x2f, 0x67, 0x6f, 0x63, 0x68, 0x65, 0x73, 0x73, 0x62,
-	0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x28, 0x09, 0x52, 0x03, 0x66, 0x65, 0x6e, 0x22, 0x30, 0x0a, 0x0a, 0x43, 0x6f, 0x6f, 0x72, 0x64,
+	0x69, 0x6e, 0x61, 0x74, 0x65, 0x12, 0x10, 0x0a, 0x03, 0x72, 0x6f, 0x77, 0x18, 0x01, 0x20, 0x01,
+	0x28, 0x05, 0x52, 0x03, 0x72, 0x6f, 0x77, 0x12, 0x10, 0x0a, 0x03, 0x63, 0x6f, 0x6c, 0x18, 0x02,
+	0x20, 0x01, 0x28, 0x05, 0x52, 0x03, 0x63, 0x6f, 0x6c, 0x22, 0x9b, 0x01, 0x0a, 0x0b, 0x4d, 0x6f,
+	0x76, 0x65, 0x4d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x12, 0x27, 0x0a, 0x04, 0x66, 0x72, 0x6f,
+	0x6d, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x13, 0x2e, 0x67, 0x6f, 0x63, 0x68, 0x65, 0x73,
+	0x73, 0x2e, 0x43, 0x6f, 0x6f, 0x72, 0x64, 0x69, 0x6e, 0x61, 0x74, 0x65, 0x52, 0x04, 0x66, 0x72,
+	0x6f, 0x6d, 0x12, 0x23, 0x0a, 0x02, 0x74, 0x6f, 0x18, 0x02, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x13,
+	0x2e, 0x67, 0x6f, 0x63, 0x68, 0x65, 0x73, 0x73, 0x2e, 0x43, 0x6f, 0x6f, 0x72, 0x64, 0x69, 0x6e,
+	0x61, 0x74, 0x65, 0x52, 0x02, 0x74, 0x6f, 0x12, 0x20, 0x0a, 0x0b, 0x69, 0x73, 0x50, 0x72, 0x6f,
+	0x6d, 0x6f, 0x74, 0x69, 0x6f, 0x6e, 0x18, 0x03, 0x20, 0x01, 0x28, 0x08, 0x52, 0x0b, 0x69, 0x73,
+	0x50, 0x72, 0x6f, 0x6d, 0x6f, 0x74, 0x69, 0x6f, 0x6e, 0x12, 0x1c, 0x0a, 0x09, 0x70, 0x69, 0x65,
+	0x63, 0x65, 0x4e, 0x61, 0x6d, 0x65, 0x18, 0x04, 0x20, 0x01, 0x28, 0x09, 0x52, 0x09, 0x70, 0x69,
+	0x65, 0x63, 0x65, 0x4e, 0x61, 0x6d, 0x65, 0x22, 0x69, 0x0a, 0x0e, 0x4d, 0x6f, 0x76, 0x65, 0x49,
+	0x6e, 0x50, 0x6f, 0x73, 0x69, 0x74, 0x69, 0x6f, 0x6e, 0x12, 0x2d, 0x0a, 0x08, 0x70, 0x6f, 0x73,
+	0x69, 0x74, 0x69, 0x6f, 0x6e, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x11, 0x2e, 0x67, 0x6f,
+	0x63, 0x68, 0x65, 0x73, 0x73, 0x2e, 0x50, 0x6f, 0x73, 0x69, 0x74, 0x69, 0x6f, 0x6e, 0x52, 0x08,
+	0x70, 0x6f, 0x73, 0x69, 0x74, 0x69, 0x6f, 0x6e, 0x12, 0x28, 0x0a, 0x04, 0x6d, 0x6f, 0x76, 0x65,
+	0x18, 0x02, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x14, 0x2e, 0x67, 0x6f, 0x63, 0x68, 0x65, 0x73, 0x73,
+	0x2e, 0x4d, 0x6f, 0x76, 0x65, 0x4d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x52, 0x04, 0x6d, 0x6f,
+	0x76, 0x65, 0x22, 0x50, 0x0a, 0x09, 0x4d, 0x6f, 0x76, 0x65, 0x4c, 0x65, 0x67, 0x61, 0x6c, 0x12,
+	0x2d, 0x0a, 0x08, 0x70, 0x6f, 0x73, 0x69, 0x74, 0x69, 0x6f, 0x6e, 0x18, 0x01, 0x20, 0x01, 0x28,
+	0x0b, 0x32, 0x11, 0x2e, 0x67, 0x6f, 0x63, 0x68, 0x65, 0x73, 0x73, 0x2e, 0x50, 0x6f, 0x73, 0x69,
+	0x74, 0x69, 0x6f, 0x6e, 0x52, 0x08, 0x70, 0x6f, 0x73, 0x69, 0x74, 0x69, 0x6f, 0x6e, 0x12, 0x14,
+	0x0a, 0x05, 0x6c, 0x65, 0x67, 0x61, 0x6c, 0x18, 0x02, 0x20, 0x01, 0x28, 0x08, 0x52, 0x05, 0x6c,
+	0x65, 0x67, 0x61, 0x6c, 0x42, 0x1c, 0x5a, 0x1a, 0x67, 0x69, 0x74, 0x68, 0x75, 0x62, 0x2e, 0x63,
+	0x6f, 0x6d, 0x2f, 0x6e, 0x73, 0x6d, 0x6f, 0x6b, 0x65, 0x72, 0x2f, 0x67, 0x6f, 0x63, 0x68, 0x65,
+	0x73, 0x73, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -99,16 +351,25 @@ func file_position_proto_rawDescGZIP() []byte {
 	return file_position_proto_rawDescData
 }
 
-var file_position_proto_msgTypes = make([]protoimpl.MessageInfo, 1)
+var file_position_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
 var file_position_proto_goTypes = []interface{}{
-	(*Position)(nil), // 0: gochess.Position
+	(*Position)(nil),       // 0: gochess.Position
+	(*Coordinate)(nil),     // 1: gochess.Coordinate
+	(*MoveMessage)(nil),    // 2: gochess.MoveMessage
+	(*MoveInPosition)(nil), // 3: gochess.MoveInPosition
+	(*MoveLegal)(nil),      // 4: gochess.MoveLegal
 }
 var file_position_proto_depIdxs = []int32{
-	0, // [0:0] is the sub-list for method output_type
-	0, // [0:0] is the sub-list for method input_type
-	0, // [0:0] is the sub-list for extension type_name
-	0, // [0:0] is the sub-list for extension extendee
-	0, // [0:0] is the sub-list for field type_name
+	1, // 0: gochess.MoveMessage.from:type_name -> gochess.Coordinate
+	1, // 1: gochess.MoveMessage.to:type_name -> gochess.Coordinate
+	0, // 2: gochess.MoveInPosition.position:type_name -> gochess.Position
+	2, // 3: gochess.MoveInPosition.move:type_name -> gochess.MoveMessage
+	0, // 4: gochess.MoveLegal.position:type_name -> gochess.Position
+	5, // [5:5] is the sub-list for method output_type
+	5, // [5:5] is the sub-list for method input_type
+	5, // [5:5] is the sub-list for extension type_name
+	5, // [5:5] is the sub-list for extension extendee
+	0, // [0:5] is the sub-list for field type_name
 }
 
 func init() { file_position_proto_init() }
@@ -129,6 +390,54 @@ func file_position_proto_init() {
 				return nil
 			}
 		}
+		file_position_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*Coordinate); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_position_proto_msgTypes[2].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*MoveMessage); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_position_proto_msgTypes[3].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*MoveInPosition); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_position_proto_msgTypes[4].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*MoveLegal); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
@@ -136,7 +445,7 @@ func file_position_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_position_proto_rawDesc,
 			NumEnums:      0,
-			NumMessages:   1,
+			NumMessages:   5,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

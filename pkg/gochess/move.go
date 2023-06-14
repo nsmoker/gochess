@@ -9,12 +9,12 @@ import (
 // know absolutely nothing about the rules of chess beyond the fact that there's an 8x8 grid and promotion.
 
 type Move struct {
-	src_row        int
-	src_col        int
-	dest_row       int
-	dest_col       int
-	isPromotion    bool
-	promotionPiece Piece
+	Src_row        int
+	Src_col        int
+	Dest_row       int
+	Dest_col       int
+	IsPromotion    bool
+	PromotionPiece Piece
 }
 
 func (move *Move) PrettyPrint(state *GameState) string {
@@ -37,17 +37,17 @@ func (move *Move) PrettyPrint(state *GameState) string {
 
 	var builder strings.Builder
 
-	columnName := string(rune(104 - move.dest_col))
-	rowName := strconv.FormatInt(int64(1+move.dest_row), 10)
+	columnName := string(rune(104 - move.Dest_col))
+	rowName := strconv.FormatInt(int64(1+move.Dest_row), 10)
 
-	pieceName := getPieceName(state.Board.PieceAt(move.src_row, move.src_col))
+	pieceName := getPieceName(state.Board.PieceAt(move.Src_row, move.Src_col))
 
 	builder.WriteString(pieceName)
 	builder.WriteString(columnName)
 	builder.WriteString(rowName)
 
-	if move.isPromotion {
-		promotionPieceName := getPieceName(move.promotionPiece)
+	if move.IsPromotion {
+		promotionPieceName := getPieceName(move.PromotionPiece)
 		builder.WriteString("=")
 		builder.WriteString(promotionPieceName)
 	}
