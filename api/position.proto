@@ -24,7 +24,8 @@ message MoveInPosition {
 
 message MoveLegal {
     Position position = 1;
-    bool legal = 2;
+    string prettyMove = 2;
+    bool legal = 3;
 }
 
-option go_package = "github.com/nsmoker/gochess";
+option go_package = "gochess/";

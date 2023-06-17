@@ -17,30 +17,40 @@ type Move struct {
 	PromotionPiece Piece
 }
 
-func (move *Move) PrettyPrint(state *GameState) string {
-	getPieceName := func(piece Piece) string {
-		switch piece {
-		case King:
-			return "K"
-		case Knight:
-			return "N"
-		case Bishop:
-			return "B"
-		case Queen:
-			return "Q"
-		case Rook:
-			return "R"
-		default:
-			return ""
-		}
+func getColumnName(column int) string {
+	return string(rune(104 - column))
+}
+
+func getRowName(row int) string {
+	return strconv.FormatInt(int64(1 + row), 10)
+}
+
+func getPieceName(piece Piece) string {
+	switch piece {
+	case King:
+		return "K"
+	case Knight:
+		return "N"
+	case Bishop:
+		return "B"
+	case Queen:
+		return "Q"
+	case Rook:
+		return "R"
+	default:
+		return ""
 	}
+}
 
+func (move *Move) PrettyPrint(state *GameState) string {
 	var builder strings.Builder
+	piece := state.Board.PieceAt(move.Src_row, move.Src_col)
+	//side := state.Board.SideAt(move.Src_row, move.Src_col)
 
-	columnName := string(rune(104 - move.Dest_col))
-	rowName := strconv.FormatInt(int64(1+move.Dest_row), 10)
+	columnName := getColumnName(move.Dest_col)
+	rowName := getRowName(move.Dest_row)
 
-	pieceName := getPieceName(state.Board.PieceAt(move.Src_row, move.Src_col))
+	pieceName := getPieceName(piece)
 
 	builder.WriteString(pieceName)
 	builder.WriteString(columnName)

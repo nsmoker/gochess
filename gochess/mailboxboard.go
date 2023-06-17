@@ -87,3 +87,25 @@ func (board *MailboxBoard) PrettyPrint() string {
 
     return builder.String()
 }
+
+// func (board *MailboxBoard) numberInColumn(column int, piece Piece, side Side) int {
+//     numberInCol := 0
+//     for row := 0; row < 8; row++ {
+//         if board.PieceAt(row, column) == piece && board.SideAt(row, column) == side {
+//             numberInCol += 1
+//         }
+//     }
+
+//     return numberInCol
+// }
+
+// func (board *MailboxBoard) numberInRow(row int, piece Piece, side Side) int {
+//     numberInRow := 0
+//     for column := 0; column < 8; column++ {
+//         if board.PieceAt(row, column) == piece && board.SideAt(row, column) == side {
+//             numberInRow += 1
+//         }
+//     }
+
+//     return numberInRow
+// }

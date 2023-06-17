@@ -6,7 +6,7 @@ import (
 	"sync"
 	"syscall"
 
-	"github.com/nsmoker/gochess/pkg/gochess"
+	"github.com/nsmoker/gochess/gochess"
 	"google.golang.org/protobuf/proto"
 )
 
@@ -42,7 +42,7 @@ func checkLegal(conn net.Conn) {
 	moveAndPos := gochess.MoveInPosition{}
 	proto.Unmarshal(buf, &moveAndPos)
 	position, err := gochess.ParseFEN(moveAndPos.Position.Fen)
-	log.Println(position.Board.PrettyPrint())
+	log.Printf("From position: %s\n", position.Board.PrettyPrint())
 	move := gochess.Move{
 		Src_row:        int(moveAndPos.Move.From.Row),
 		Src_col:        int(moveAndPos.Move.From.Col),
@@ -58,6 +58,7 @@ func checkLegal(conn net.Conn) {
 		var legalMsg gochess.MoveLegal
 		var posNew gochess.Position
 		legalMsg.Legal = isLegal
+		legalMsg.PrettyMove = move.PrettyPrint(&position)
 		position.TakeTurn(move)
 		posNew.Fen = gochess.ToFEN(&position)
 		legalMsg.Position = &posNew
@@ -71,6 +72,7 @@ func checkLegal(conn net.Conn) {
 			log.Println(err)
 		}
 		conn.Close()
+		log.Printf("Position after: %s\n", position.Board.PrettyPrint())
 	} else {
 		log.Println(err)
 	}
