@@ -5,6 +5,7 @@ import (
 	"net"
 	"sync"
 	"syscall"
+	"fmt"
 
 	"github.com/nsmoker/gochess/gochess"
 	"google.golang.org/protobuf/proto"
@@ -37,11 +38,18 @@ func listenOnUrl(waitGroup *sync.WaitGroup, url string, handler func(net.Conn)) 
 }
 
 func checkLegal(conn net.Conn) {
-	buf := make([]byte, 512)
+	buf := make([]byte, 1024)
 	conn.Read(buf)
 	moveAndPos := gochess.MoveInPosition{}
 	proto.Unmarshal(buf, &moveAndPos)
+
 	position, err := gochess.ParseFEN(moveAndPos.Position.Fen)
+	// 07/14/2023 proto.Unmarshal throws invalid wire format errors even on valid wire formats that unmarshal successfully, so we need to do our own error checking.
+	if err != nil {
+		conn.Write([]byte(fmt.Sprintf("Couldn't unmarshal message: %v, error %v", string(buf), err)))
+		conn.Close()
+		return
+	}
 	log.Printf("From position: %s\n", position.Board.PrettyPrint())
 	move := gochess.Move{
 		Src_row:        int(moveAndPos.Move.From.Row),

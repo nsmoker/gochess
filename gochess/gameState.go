@@ -316,6 +316,10 @@ func (state *GameState) pawnCanMove(side Side, srcRow int, srcCol int, destRow i
 		dir = -1
 	}
 
+	if state.Board.SideAt(destRow, destCol) != Empty {
+		return false
+	}
+
 	if srcCol-destCol == 0 {
 		var startingRow int
 		if side == White {

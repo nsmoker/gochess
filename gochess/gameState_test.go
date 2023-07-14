@@ -679,3 +679,34 @@ func TestTakeTurnEnPassant(t *testing.T) {
 		t.Fatalf("Got %s after %s, want %s", state.Board.PrettyPrint(), ep.PrettyPrint(&state), want.PrettyPrint())
 	}
 }
+
+func TestPawnCantMoveThroughOpposingPiece(t *testing.T) {
+	tst := MailboxBoard{Pieces: [64]Piece{Rook, Knight, Bishop, King, Queen, Bishop, Knight, Rook,
+		Empty, Pawn, Pawn, Pawn, Pawn, Pawn, Pawn, Pawn,
+		Empty, Empty, Empty, Empty, Empty, Empty, Empty, Empty,
+		Pawn, Empty, Empty, Empty, Empty, Empty, Empty, Empty,
+		Pawn, Empty, Empty, Empty, Pawn, Empty, Empty, Empty,
+		Empty, Empty, Empty, Empty, Empty, Empty, Empty, Empty,
+		Empty, Pawn, Pawn, Pawn, Pawn, Pawn, Pawn, Pawn,
+		Rook, Knight, Bishop, King, Queen, Bishop, Knight, Rook},
+		Sides: [64]Side{White, White, White, White, White, White, White, White,
+			Empty, White, White, White, White, White, White, White,
+			Empty, Empty, Empty, Empty, Empty, Empty, Empty, Empty,
+			White, Empty, Empty, Empty, Empty, Empty, Empty, Empty,
+			Black, Empty, Empty, Empty, White, Empty, Empty, Empty,
+			Empty, Empty, Empty, Empty, Empty, Empty, Empty, Empty,
+			Empty, Black, Black, Black, Black, Black, Black, Black,
+			Black, Black, Black, Black, Black, Black, Black, Black}}
+
+	state := MakeStartingState()
+	state.Board = tst
+
+	illegal := Move{Src_row: 3, Src_col: 0, Dest_row: 4, Dest_col: 0}
+
+	state.TakeTurn(illegal)
+
+	if !cmp.Equal(state.Board, tst) {
+		t.Log(cmp.Diff(state.Board, tst))
+		t.Fatalf("Got %s after %s, want %s", state.Board.PrettyPrint(), illegal.PrettyPrint(&state), tst.PrettyPrint())
+	}
+}
