@@ -13,6 +13,25 @@ type StateLst struct {
 	Next []*StateLst
 }
 
+type DisplayList struct {
+	Fen string
+	Comment string
+	Next []*DisplayList
+}
+
+func DisplayStateList(stateList *StateLst) *PgnDisplay {
+	var nextList []*PgnDisplay
+	for i := 0; i < len(stateList.Next); i += 1 {
+		nextList = append(nextList, DisplayStateList(stateList.Next[i]))
+	}
+	var ret PgnDisplay
+	ret.Fen = ToFEN(&stateList.State)
+	ret.Comment = stateList.Comment
+	ret.Next = nextList
+
+	return &ret
+}
+
 // It is best for us to handle most of PGN parsing, it requires too much rule awareness for the GUI to be reasonably expected to do it.
 func ParsePgn(pgn string) StateLst {
 	scanner := bufio.NewScanner(strings.NewReader(pgn))

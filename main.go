@@ -87,9 +87,30 @@ func checkLegal(conn net.Conn) {
 	}
 }
 
+func parsePgn(conn net.Conn) {
+	buf := make([]byte, 1024)
+	conn.Read(buf)
+	pgnRequest := gochess.RequestPgnParse{}
+	proto.Unmarshal(buf, &pgnRequest)
+
+	stateLst := gochess.ParsePgn(pgnRequest.Pgn)
+	displayLst := gochess.DisplayStateList(&stateLst)
+	marshalled, err := proto.Marshal(displayLst)
+	if err != nil {
+		log.Println(err)
+	}
+	_, err = conn.Write(marshalled)
+
+	if err != nil {
+		log.Println(err)
+	}
+	conn.Close()
+}
+
 func main() {
 	var wg sync.WaitGroup
 	listenOnUrl(&wg, "/tmp/checkLegal.sock", checkLegal)
+	listenOnUrl(&wg, "/tmp/parsePgn.sock", parsePgn)
 
 	wg.Wait()
 }
