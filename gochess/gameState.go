@@ -1,7 +1,6 @@
 package gochess
 
 import (
-	"log"
 	"math"
 )
 
@@ -20,7 +19,7 @@ type GameState struct {
 
 	IsWhiteTurn   bool
 	PreviousMove  *Move
-	PreviousState *GameState
+	NextState *GameState
 }
 
 func MakeStartingState() GameState {
@@ -68,7 +67,6 @@ func (state *GameState) IsMoveLegal(move Move) bool {
 	var testState GameState
 	testState.Board = state.Board
 	testState.PreviousMove = state.PreviousMove
-	testState.PreviousState = state.PreviousState
 
 	testState.Board.PlacePiece(move.DstRow, move.DstCol, movingPiece, movingSide)
 	testState.Board.RemovePiece(move.SrcRow, move.SrcCol)
@@ -162,9 +160,11 @@ func (state *GameState) IsInCheck(side Side) bool {
 	return false
 }
 
-func (state *GameState) TakeTurn(move Move) bool {
+func (oldState *GameState) TakeTurn(move Move) (GameState, bool) {
+	state := *oldState
 	if !state.IsMoveLegal(move) {
-		return false
+		oldState.NextState = oldState
+		return *oldState, false
 	} else {
 		movingPiece := state.Board.PieceAt(move.SrcRow, move.SrcCol)
 		movingSide := state.Board.SideAt(move.SrcRow, move.SrcCol)
@@ -203,13 +203,12 @@ func (state *GameState) TakeTurn(move Move) bool {
 			}
 		}
 
-		prevState := *state
-		state.PreviousState = &prevState
+		oldState.NextState = &state
 		state.PreviousMove = &move
 
 		state.IsWhiteTurn = !state.IsWhiteTurn
 
-		return true
+		return state, true
 	}
 }
 
@@ -294,9 +293,6 @@ func (state *GameState) pawnCanSee(side Side, srcRow int, srcCol int, destRow in
 	} else {
 		verticalRange = -1
 	}
-
-	log.Println("hi")
-	log.Println(state.Board.SideAt(destRow, destCol))
 
 	if destRow-srcRow == verticalRange && math.Abs(float64(srcCol-destCol)) == 1 {
 		if state.Board.SideAt(destRow, destCol) == otherside {

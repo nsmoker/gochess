@@ -80,6 +80,38 @@ func getPieceName(piece Piece) string {
 }
 
 func CreateMoveFromPrettyMove(state *GameState, prettyMove string) Move {
+	if prettyMove == "O-O" {
+		srcCol := 3
+		srcRow := 0
+		if !state.IsWhiteTurn {
+			srcRow = 7
+		}
+
+		return Move {
+			SrcRow: srcRow,
+			SrcCol: srcCol,
+			DstRow: srcRow,
+			DstCol: 1,
+			IsPromotion: false,
+			PromotionPiece: 0,
+		}
+	} else if prettyMove == "O-O-O" {
+		srcCol := 3
+		srcRow := 0
+		if !state.IsWhiteTurn {
+			srcRow = 7
+		}
+
+		return Move {
+			SrcRow: srcRow,
+			SrcCol: srcCol,
+			DstRow: srcRow,
+			DstCol: 5,
+			IsPromotion: false,
+			PromotionPiece: 0,
+		}
+	}
+
 	var piece Piece
 	var side Side
 	if state.IsWhiteTurn {

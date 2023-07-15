@@ -67,9 +67,10 @@ func checkLegal(conn net.Conn) {
 		var posNew gochess.Position
 		legalMsg.Legal = isLegal
 		legalMsg.PrettyMove = move.PrettyPrint(&position)
-		position.TakeTurn(move)
-		posNew.Fen = gochess.ToFEN(&position)
+		sNew, legal := position.TakeTurn(move)
+		posNew.Fen = gochess.ToFEN(&sNew)
 		legalMsg.Position = &posNew
+		legalMsg.Legal = legal
 		marshalled, err := proto.Marshal(&legalMsg)
 		if err != nil {
 			log.Println(err)

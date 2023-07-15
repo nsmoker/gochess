@@ -2,7 +2,7 @@ package gochess
 
 import (
 	"bufio"
-	"fmt"
+	//"fmt"
 	"strings"
 	"unicode"
 )
@@ -10,51 +10,68 @@ import (
 type StateLst struct {
 	State GameState
 	Comment string
-	Next []StateLst
+	Next []*StateLst
 }
 
 // It is best for us to handle most of PGN parsing, it requires too much rule awareness for the GUI to be reasonably expected to do it.
-func ParsePgn(pgn string) {
+func ParsePgn(pgn string) StateLst {
 	scanner := bufio.NewScanner(strings.NewReader(pgn))
 	inMove := false
+	inCurlyBrace := false
+	encounteredNumber := false
 	move := ""
-	//state := MakeStartingState()
+	rootState := StateLst {
+		State: MakeStartingState(),
+		Comment: "",
+		Next: []*StateLst{},
+	}
+	currentState := &rootState
+	//stack := []StateLst{}
 	for scanner.Scan() {
 		line := scanner.Text()
 		// We don't care about tag pairs, those are trivial for the GUI to parse and display. We want the move text.
-		// We parse move by move. At least for now, we don't care about anything but getting all variations and comments. 
+		// We parse move by move. At least for now, we don't care about anything but getting all variations. 
 		if !strings.HasPrefix(strings.TrimSpace(line), "[") {
 			for i := 0; i < len(line); i += 1 {
 				c := line[i]
-				if c == ' ' {
-					if inMove {
-						inMove = false
-						fmt.Println(move)
-						move = ""
+				if c == '{' {
+					inCurlyBrace = true
+				} else if c == '}' {
+					inCurlyBrace = false
+				}
+
+				if encounteredNumber && c == '.' {
+					encounteredNumber = false
+				}
+
+				if !inCurlyBrace && !encounteredNumber {
+					if c == ' ' {
+						if inMove {
+							inMove = false
+							mv := CreateMoveFromPrettyMove(&currentState.State, move)
+							newState, _ := currentState.State.TakeTurn(mv)
+							sl := StateLst {
+								State: newState,
+								Comment: "",
+								Next: []*StateLst{},
+							}
+							currentState.Next = append(currentState.Next, &sl)
+							currentState = &sl
+							//fmt.Println(newState.Board.PrettyPrint())
+							move = ""
+						} 
+					} else if !inMove && unicode.IsLetter(rune(c)) {
+						move += string(c)
+						inMove = true
+					} else if inMove && (unicode.IsLetter(rune(c)) || unicode.IsNumber(rune(c)) || c == '=' || c == '-') {
+						move += string(c)
+					} else if !inMove && unicode.IsNumber(rune(c)) {
+						encounteredNumber = true
 					}
-				} else if !inMove && unicode.IsLetter(rune(c)) {
-					move += string(c)
-					inMove = true
-				} else if inMove {
-					move += string(c)
 				}
 			}
 		}
 	}
-}
 
-func ToPGN(state *GameState) string {
-	var builder strings.Builder
-	states := []*GameState{}
-	for currentState := state; currentState.PreviousState != nil; {
-		states = append(states, currentState)
-	}
-
-	for i := len(states) - 1; i >= 0; i++ {
-		state := states[i]
-		moveNumber := len(states) - i
-		builder.WriteString(fmt.Sprintf("%d. %s ", moveNumber, state.PreviousMove.PrettyPrint(state)))
-	}
-
-	return builder.String()
+	return rootState
 }
