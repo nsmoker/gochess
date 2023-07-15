@@ -212,6 +212,12 @@ func (move *Move) PrettyPrint(state *GameState) string {
 	side := state.Board.SideAt(move.SrcRow, move.SrcCol)
 	possibleMovers := state.piecesInRange(piece, side, move.SrcRow, move.SrcCol)
 
+	if state.moveIsCastlesShort(*move) {
+		return "O-O"
+	} else if state.moveIsCastlesLong(*move) {
+		return "O-O-O"
+	}
+
 	var sameRowCount int
 	var sameColCount int
 	for i := 0; i < len(possibleMovers); i += 1 {
@@ -239,7 +245,7 @@ func (move *Move) PrettyPrint(state *GameState) string {
 		builder.WriteString(getRowName(move.SrcRow))
 	}
 
-	if state.Board.PieceAt(move.DstRow, move.SrcCol) != Empty {
+	if state.Board.PieceAt(move.DstRow, move.DstCol) != Empty {
 		builder.WriteString("x")
 	}
 

@@ -10,12 +10,14 @@ import (
 type StateLst struct {
 	State GameState
 	Comment string
+	Algebraic string
 	Next []*StateLst
 }
 
 type DisplayList struct {
 	Fen string
 	Comment string
+	Algebraic string
 	Next []*DisplayList
 }
 
@@ -26,6 +28,7 @@ func DisplayStateList(stateList *StateLst) *PgnDisplay {
 	}
 	var ret PgnDisplay
 	ret.Fen = ToFEN(&stateList.State)
+	ret.Algebraic = stateList.Algebraic
 	ret.Comment = stateList.Comment
 	ret.Next = nextList
 
@@ -72,6 +75,7 @@ func ParsePgn(pgn string) StateLst {
 							sl := StateLst {
 								State: newState,
 								Comment: "",
+								Algebraic: move,
 								Next: []*StateLst{},
 							}
 							currentState.Next = append(currentState.Next, &sl)
