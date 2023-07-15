@@ -546,7 +546,7 @@ func TestTakeTurnSimple(t *testing.T) {
 
 	e4 := Move{SrcRow: 1, SrcCol: 3, DstRow: 3, DstCol: 3}
 
-	state.TakeTurn(e4)
+	state, _ = state.TakeTurn(e4)
 
 	want := MailboxBoard{Pieces: [64]Piece{Rook, Knight, Bishop, King, Queen, Bishop, Knight, Rook,
 		Pawn, Pawn, Pawn, Empty, Pawn, Pawn, Pawn, Pawn,
@@ -582,7 +582,7 @@ func TestTakeTurnPromotion(t *testing.T) {
 
 	move := Move{SrcRow: 6, SrcCol: 6, DstRow: 7, DstCol: 6, IsPromotion: true, PromotionPiece: Queen}
 
-	state.TakeTurn(move)
+	state, _ = state.TakeTurn(move)
 
 	want := MailboxBoard{Pieces: [64]Piece{Rook, Knight, Bishop, King, Queen, Bishop, Knight, Rook,
 		Pawn, Pawn, Pawn, Pawn, Pawn, Pawn, Pawn, Pawn,
@@ -615,7 +615,7 @@ func TestTakeTurnCastles(t *testing.T) {
 
 	move := Move{SrcRow: 0, SrcCol: 3, DstRow: 0, DstCol: 1}
 
-	state.TakeTurn(move)
+	state, _ = state.TakeTurn(move)
 
 	want := MailboxBoard{Pieces: [64]Piece{Empty, King, Rook, Empty, Queen, Bishop, Knight, Rook,
 		Pawn, Pawn, Pawn, Pawn, Pawn, Pawn, Pawn, Pawn,
@@ -656,7 +656,7 @@ func TestTakeTurnEnPassant(t *testing.T) {
 
 	ep := Move{SrcRow: 3, SrcCol: 3, DstRow: 4, DstCol: 4}
 
-	state.TakeTurn(ep)
+	state, _ = state.TakeTurn(ep)
 
 	want := MailboxBoard{Pieces: [64]Piece{Rook, Knight, Bishop, King, Queen, Bishop, Knight, Rook,
 		Pawn, Pawn, Pawn, Pawn, Pawn, Pawn, Pawn, Pawn,
