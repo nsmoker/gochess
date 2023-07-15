@@ -6,6 +6,8 @@ import (
 	"unicode"
 )
 
+// Note that the FEN functions here are do not absolve the GUI of responsibility, it still needs to display FEN strings.
+
 func ToFEN(state *GameState) string {
 	var fen strings.Builder
 	counter := 0
@@ -164,8 +166,8 @@ func ParseFEN(fen string) (GameState, error) {
 	} else {
 		col := 104 - fen[i]
 		row := fen[i+1]
-		state.PreviousMove.Dest_row = int(row)
-		state.PreviousMove.Dest_col = int(col)
+		state.PreviousMove.DstRow = int(row)
+		state.PreviousMove.DstCol = int(col)
 	}
 
 	return state, nil

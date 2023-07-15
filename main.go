@@ -1,11 +1,11 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net"
 	"sync"
 	"syscall"
-	"fmt"
 
 	"github.com/nsmoker/gochess/gochess"
 	"google.golang.org/protobuf/proto"
@@ -52,10 +52,10 @@ func checkLegal(conn net.Conn) {
 	}
 	log.Printf("From position: %s\n", position.Board.PrettyPrint())
 	move := gochess.Move{
-		Src_row:        int(moveAndPos.Move.From.Row),
-		Src_col:        int(moveAndPos.Move.From.Col),
-		Dest_row:       int(moveAndPos.Move.To.Row),
-		Dest_col:       int(moveAndPos.Move.To.Col),
+		SrcRow:         int(moveAndPos.Move.From.Row),
+		SrcCol:         int(moveAndPos.Move.From.Col),
+		DstRow:         int(moveAndPos.Move.To.Row),
+		DstCol:         int(moveAndPos.Move.To.Col),
 		IsPromotion:    false,
 		PromotionPiece: 0,
 	}
