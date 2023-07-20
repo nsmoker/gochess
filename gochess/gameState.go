@@ -1,7 +1,6 @@
 package gochess
 
 import (
-	"fmt"
 	"math"
 )
 
