@@ -211,6 +211,7 @@ func (move *Move) PrettyPrint(state *GameState) string {
 	piece := state.Board.PieceAt(move.SrcRow, move.SrcCol)
 	side := state.Board.SideAt(move.SrcRow, move.SrcCol)
 	possibleMovers := state.piecesInRange(piece, side, move.SrcRow, move.SrcCol)
+	stateAfter, _ := state.TakeTurn(*move)
 
 	if state.moveIsCastlesShort(*move) {
 		return "O-O"
@@ -258,6 +259,17 @@ func (move *Move) PrettyPrint(state *GameState) string {
 		promotionPieceName := getPieceName(move.PromotionPiece)
 		builder.WriteString("=")
 		builder.WriteString(promotionPieceName)
+	}
+
+	var otherside Side
+	if side == Black {
+		otherside = White
+	} else {
+		otherside = Black
+	}
+
+	if stateAfter.IsInCheck(otherside) {
+		builder.WriteString("+")
 	}
 
 	return builder.String()
