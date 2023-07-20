@@ -2,7 +2,7 @@ package gochess
 
 import (
 	"bufio"
-	//"fmt"
+	"fmt"
 	"strings"
 	"unicode"
 )
@@ -12,13 +12,6 @@ type StateLst struct {
 	Comment string
 	Algebraic string
 	Next []*StateLst
-}
-
-type DisplayList struct {
-	Fen string
-	Comment string
-	Algebraic string
-	Next []*DisplayList
 }
 
 func DisplayStateList(stateList *StateLst) *PgnDisplay {
@@ -35,12 +28,15 @@ func DisplayStateList(stateList *StateLst) *PgnDisplay {
 	return &ret
 }
 
+func isMoveText(c byte) bool {
+	return unicode.IsLetter(rune(c)) || unicode.IsNumber(rune(c)) || c == '=' || c == '-'
+}
+
 // It is best for us to handle most of PGN parsing, it requires too much rule awareness for the GUI to be reasonably expected to do it.
 func ParsePgn(pgn string) StateLst {
 	scanner := bufio.NewScanner(strings.NewReader(pgn))
 	inMove := false
 	inCurlyBrace := false
-	encounteredNumber := false
 	move := ""
 	rootState := StateLst {
 		State: MakeStartingState(),
@@ -48,7 +44,9 @@ func ParsePgn(pgn string) StateLst {
 		Next: []*StateLst{},
 	}
 	currentState := &rootState
-	//stack := []StateLst{}
+	var prev *StateLst
+	prev = nil
+	stack := []*StateLst{}
 	for scanner.Scan() {
 		line := scanner.Text()
 		// We don't care about tag pairs, those are trivial for the GUI to parse and display. We want the move text.
@@ -62,16 +60,21 @@ func ParsePgn(pgn string) StateLst {
 					inCurlyBrace = false
 				}
 
-				if encounteredNumber && c == '.' {
-					encounteredNumber = false
+				if c == '(' {
+					stack = append(stack, currentState)
+					currentState = prev
 				}
 
-				if !inCurlyBrace && !encounteredNumber {
-					if c == ' ' {
+				if !inCurlyBrace {
+					if c == ' ' || !isMoveText(c) {
 						if inMove {
 							inMove = false
 							mv := CreateMoveFromPrettyMove(&currentState.State, move)
-							newState, _ := currentState.State.TakeTurn(mv)
+							newState, made := currentState.State.TakeTurn(mv)
+							if !made {
+								fmt.Println(currentState.State.Board.PrettyPrint())
+								fmt.Println(move)
+							}
 							sl := StateLst {
 								State: newState,
 								Comment: "",
@@ -79,18 +82,22 @@ func ParsePgn(pgn string) StateLst {
 								Next: []*StateLst{},
 							}
 							currentState.Next = append(currentState.Next, &sl)
+							prev = currentState
 							currentState = &sl
-							//fmt.Println(newState.Board.PrettyPrint())
 							move = ""
 						} 
 					} else if !inMove && unicode.IsLetter(rune(c)) {
 						move += string(c)
 						inMove = true
-					} else if inMove && (unicode.IsLetter(rune(c)) || unicode.IsNumber(rune(c)) || c == '=' || c == '-') {
+					} else if inMove && isMoveText(c) {
 						move += string(c)
-					} else if !inMove && unicode.IsNumber(rune(c)) {
-						encounteredNumber = true
 					}
+				}
+
+				if c == ')' {
+					// Pop stack
+					currentState = stack[len(stack) - 1]
+					stack = stack[:len(stack) - 1]
 				}
 			}
 		}

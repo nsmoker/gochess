@@ -38,7 +38,7 @@ func listenOnUrl(waitGroup *sync.WaitGroup, url string, handler func(net.Conn)) 
 }
 
 func checkLegal(conn net.Conn) {
-	buf := make([]byte, 1024)
+	buf := make([]byte, 10240000)
 	conn.Read(buf)
 	moveAndPos := gochess.MoveInPosition{}
 	proto.Unmarshal(buf, &moveAndPos)
@@ -81,14 +81,14 @@ func checkLegal(conn net.Conn) {
 			log.Println(err)
 		}
 		conn.Close()
-		log.Printf("Position after: %s\n", position.Board.PrettyPrint())
+		log.Printf("Position after: %s\n", sNew.Board.PrettyPrint())
 	} else {
 		log.Println(err)
 	}
 }
 
 func parsePgn(conn net.Conn) {
-	buf := make([]byte, 1024)
+	buf := make([]byte, 10240000)
 	conn.Read(buf)
 	pgnRequest := gochess.RequestPgnParse{}
 	proto.Unmarshal(buf, &pgnRequest)

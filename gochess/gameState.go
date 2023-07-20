@@ -1,6 +1,7 @@
 package gochess
 
 import (
+	"fmt"
 	"math"
 )
 
@@ -67,6 +68,7 @@ func (state *GameState) IsMoveLegal(move Move) bool {
 	var testState GameState
 	testState.Board = state.Board
 	testState.PreviousMove = state.PreviousMove
+	testState.IsWhiteTurn = !state.IsWhiteTurn
 
 	testState.Board.PlacePiece(move.DstRow, move.DstCol, movingPiece, movingSide)
 	testState.Board.RemovePiece(move.SrcRow, move.SrcCol)
@@ -163,7 +165,6 @@ func (state *GameState) IsInCheck(side Side) bool {
 func (oldState *GameState) TakeTurn(move Move) (GameState, bool) {
 	state := *oldState
 	if !state.IsMoveLegal(move) {
-		oldState.NextState = oldState
 		return *oldState, false
 	} else {
 		movingPiece := state.Board.PieceAt(move.SrcRow, move.SrcCol)
@@ -350,7 +351,7 @@ func (state *GameState) pawnCanMove(side Side, srcRow int, srcCol int, destRow i
 func (state *GameState) kingCanSee(side Side, srcRow int, srcCol int, destRow int, destCol int) bool {
 	canSeeDiagonal := state.canSeeDiagonal(srcRow, srcCol, destRow, destCol)
 	canSeeRook := state.canSeeRook(srcRow, srcCol, destRow, destCol)
-	canMoveTo := canSeeDiagonal && canSeeRook && math.Abs(float64((srcRow-destRow)+(srcCol-destCol))) == 1
+	canMoveTo := (canSeeDiagonal || canSeeRook) && (math.Abs(float64((srcRow-destRow))) <= 1 && math.Abs(float64((srcCol-destCol))) <= 1)
 
 	if canMoveTo {
 		return true
