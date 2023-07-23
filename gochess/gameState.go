@@ -246,6 +246,12 @@ func (oldState *GameState) TakeTurn(move Move) (GameState, bool) {
 			state.EpTarget = nil
 		}
 
+		if movingPiece == Pawn || state.Board.SideAt(move.DstRow, move.DstCol) != Empty {
+			state.PlyClock += 1
+		} else {
+			state.PlyClock = 0
+		}
+
 		state.IsWhiteTurn = !state.IsWhiteTurn
 
 		return state, true

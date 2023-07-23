@@ -70,10 +70,12 @@ func ToFEN(state *GameState) string {
 	if state.EpTarget == nil {
 		fen.WriteString(" -")
 	} else {
-		fen.WriteString(fmt.Sprintf("%s%s", GetColumnName(state.EpTarget.Col), GetRowName(state.EpTarget.Row)))
+		fen.WriteString(fmt.Sprintf(" %s%s", GetColumnName(state.EpTarget.Col), GetRowName(state.EpTarget.Row)))
 	}
 
+	fen.WriteString(" ")
 	fen.WriteString(strconv.FormatInt(int64(state.PlyClock), 10))
+	fen.WriteString(" ")
 	fen.WriteString(strconv.FormatInt(int64(math.Floor(float64(state.PlyClock) / 2.0) + 1), 10))
 
 	return fen.String()
