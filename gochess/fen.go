@@ -1,12 +1,12 @@
 package gochess
 
 import (
+	"fmt"
+	"math"
 	"strconv"
 	"strings"
 	"unicode"
 )
-
-// Note that the FEN functions here are do not absolve the GUI of responsibility, it still needs to display FEN strings.
 
 func ToFEN(state *GameState) string {
 	var fen strings.Builder
@@ -67,7 +67,14 @@ func ToFEN(state *GameState) string {
 		fen.WriteString("-")
 	}
 
-	fen.WriteString(" -")
+	if state.EpTarget == nil {
+		fen.WriteString(" -")
+	} else {
+		fen.WriteString(fmt.Sprintf("%s%s", GetColumnName(state.EpTarget.Col), GetRowName(state.EpTarget.Row)))
+	}
+
+	fen.WriteString(strconv.FormatInt(int64(state.PlyClock), 10))
+	fen.WriteString(strconv.FormatInt(int64(math.Floor(float64(state.PlyClock) / 2.0) + 1), 10))
 
 	return fen.String()
 }
@@ -166,9 +173,23 @@ func ParseFEN(fen string) (GameState, error) {
 	} else {
 		col := 104 - fen[i]
 		row := fen[i+1]
-		state.PreviousMove.DstRow = int(row)
-		state.PreviousMove.DstCol = int(col)
+		state.EpTarget.Col = int(col)
+		state.EpTarget.Row = int(row)
+		i += 3
 	}
+
+	// Fifth field
+	spaceReached = false
+	j := i
+	for !spaceReached {
+		if fen[j] == ' ' {
+			spaceReached = true
+		} else {
+			j += 1
+		}
+	}
+
+	state.PlyClock, _ = strconv.Atoi(fen[i:j + 1])
 
 	return state, nil
 }

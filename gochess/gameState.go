@@ -17,9 +17,10 @@ type GameState struct {
 	WhiteCanCastleKingside  bool
 	WhiteCanCastleQueenside bool
 
+	EpTarget *BoardCoord
+	PlyClock int
+
 	IsWhiteTurn   bool
-	PreviousMove  *Move
-	NextState *GameState
 }
 
 func MakeStartingState() GameState {
@@ -66,7 +67,6 @@ func (state *GameState) IsMoveLegal(move Move) bool {
 
 	var testState GameState
 	testState.Board = state.Board
-	testState.PreviousMove = state.PreviousMove
 	testState.IsWhiteTurn = !state.IsWhiteTurn
 
 	testState.Board.PlacePiece(move.DstRow, move.DstCol, movingPiece, movingSide)
@@ -75,12 +75,23 @@ func (state *GameState) IsMoveLegal(move Move) bool {
 	return legalWithoutCheck && !testState.IsInCheck(movingSide)
 }
 
-func (state *GameState) IsInCheck(side Side) bool {
-	// Find the king
+func (state *GameState) locateKing(side Side) BoardCoord {
+	loc := BoardCoord { Row: -1, Col: -1 }
 
-	kingRow := -1
-	kingCol := -1
-	board := state.Board
+	for i := 0; i < 8; i++ {
+		for j := 0; j < 8; j++ {
+			if state.Board.PieceAt(i, j) == King && state.Board.SideAt(i, j) == side {
+				loc.Row = i
+				loc.Col = j
+			}
+		}
+	}
+
+	return loc
+}
+
+func (state *GameState) IsInCheck(side Side) bool {
+	kingLoc := state.locateKing(side)
 
 	var otherside Side
 	if side == White {
@@ -89,23 +100,16 @@ func (state *GameState) IsInCheck(side Side) bool {
 		otherside = White
 	}
 
-	for i := 0; i < 8; i++ {
-		for j := 0; j < 8; j++ {
-			if board.PieceAt(i, j) == King && board.SideAt(i, j) == side {
-				kingRow = i
-				kingCol = j
-			}
-		}
-	}
-
 	// Look for vertical checks
 	isVerticalHorizontalChecker := func(row int, col int) bool {
-		if board.SideAt(row, col) == otherside {
-			switch board.PieceAt(row, col) {
+		if state.Board.SideAt(row, col) == otherside {
+			switch state.Board.PieceAt(row, col) {
 			case Rook:
 				return true
 			case Queen:
 				return true
+			case King:
+				return math.Abs(float64(row - kingLoc.Row)) <= 1 && math.Abs(float64(col - kingLoc.Col)) <= 1
 			default:
 				return false
 			}
@@ -116,12 +120,14 @@ func (state *GameState) IsInCheck(side Side) bool {
 
 	// Look for diagonal checks
 	isDiagonalChecker := func(row int, col int) bool {
-		if board.SideAt(row, col) == otherside {
-			switch board.PieceAt(row, col) {
+		if state.Board.SideAt(row, col) == otherside {
+			switch state.Board.PieceAt(row, col) {
 			case Bishop:
 				return true
 			case Queen:
 				return true
+			case King:
+				return math.Abs(float64(row - kingLoc.Row)) <= 1 && math.Abs(float64(col - kingLoc.Col)) <= 1
 			case Pawn:
 				var verticalRange int
 				if side == White {
@@ -129,7 +135,7 @@ func (state *GameState) IsInCheck(side Side) bool {
 				} else {
 					verticalRange = -1
 				}
-				if row-kingRow == verticalRange && math.Abs(float64(col-kingCol)) == 1 {
+				if row-kingLoc.Row == verticalRange && math.Abs(float64(col-kingLoc.Col)) == 1 {
 					return true
 				} else {
 					return false
@@ -143,22 +149,45 @@ func (state *GameState) IsInCheck(side Side) bool {
 	}
 
 	isOpponentKnight := func(row int, col int) bool {
-		return board.SideAt(row, col) == otherside && board.PieceAt(row, col) == Knight
+		return state.Board.SideAt(row, col) == otherside && state.Board.PieceAt(row, col) == Knight
 	}
 
 	for row := 0; row < 8; row++ {
 		for col := 0; col < 8; col++ {
-			if isVerticalHorizontalChecker(row, col) && state.canSeeRook(row, col, kingRow, kingCol) {
+			if isVerticalHorizontalChecker(row, col) && state.canSeeRook(row, col, kingLoc.Row, kingLoc.Col) {
 				return true
-			} else if isDiagonalChecker(row, col) && state.canSeeDiagonal(row, col, kingRow, kingCol) {
+			} else if isDiagonalChecker(row, col) && state.canSeeDiagonal(row, col, kingLoc.Row, kingLoc.Col) {
 				return true
-			} else if isOpponentKnight(row, col) && state.knightCanSee(row, col, kingRow, kingCol) {
+			} else if isOpponentKnight(row, col) && state.knightCanSee(row, col, kingLoc.Row, kingLoc.Col) {
 				return true
 			}
 		}
 	}
 
 	return false
+}
+
+func (state *GameState) IsInCheckmate(side Side) bool {
+	if !state.IsInCheck(side) {
+		return false
+	} else {
+		kingLoc := state.locateKing(side)
+		for i := int(math.Max(float64(kingLoc.Row - 1), 0)); i <= int(math.Min(float64(kingLoc.Row) + 1, 7)); i++ {
+			for j := int(math.Max(float64(kingLoc.Col - 1), 0)); j <= int(math.Min(float64(kingLoc.Col) + 1, 7)); j++ {
+				move := Move {
+					SrcRow: kingLoc.Row,
+					SrcCol: kingLoc.Col,
+					DstRow: i,
+					DstCol: j,
+				}
+				if state.IsMoveLegal(move) {
+					return false
+				}
+			}
+		}
+
+		return true
+	}
 }
 
 func (oldState *GameState) TakeTurn(move Move) (GameState, bool) {
@@ -203,8 +232,19 @@ func (oldState *GameState) TakeTurn(move Move) (GameState, bool) {
 			}
 		}
 
-		oldState.NextState = &state
-		state.PreviousMove = &move
+		if movingPiece == Pawn && math.Abs(float64(move.SrcRow) - float64(move.DstRow)) == 2 {
+			oldState.EpTarget = &BoardCoord{}
+			oldState.EpTarget.Col = move.SrcCol
+			var sign int
+			if math.Signbit(float64(move.DstRow) - float64(move.SrcRow)) {
+				sign = -1
+			} else {
+				sign = 1
+			}
+			oldState.EpTarget.Row = move.SrcRow + sign
+		} else {
+			state.EpTarget = nil
+		}
 
 		state.IsWhiteTurn = !state.IsWhiteTurn
 
@@ -298,10 +338,8 @@ func (state *GameState) pawnCanSee(side Side, srcRow int, srcCol int, destRow in
 		if state.Board.SideAt(destRow, destCol) == otherside {
 			return true
 		} else {
-			if state.Board.PieceAt(srcRow, destCol) == Pawn && state.Board.SideAt(srcRow, destCol) == otherside {
-				if state.PreviousMove != nil && state.PreviousMove.DstRow == srcRow && state.PreviousMove.DstCol == destCol {
-					return true
-				}
+			if state.EpTarget != nil && state.EpTarget.Row == destRow && state.EpTarget.Col == destCol {
+				return true
 			}
 		}
 	}

@@ -22,7 +22,7 @@ func getColumnFromColumnName(columnName string) int {
 	return 104 - int(columnName[0])
 }
 
-func getColumnName(column int) string {
+func GetColumnName(column int) string {
 	return string(rune(104 - column))
 }
 
@@ -31,7 +31,7 @@ func getRowFromRowName(rowName string) int {
 	return int(i) - 1
 }
 
-func getRowName(row int) string {
+func GetRowName(row int) string {
 	return strconv.FormatInt(int64(1+row), 10)
 }
 
@@ -230,8 +230,8 @@ func (move *Move) PrettyPrint(state *GameState) string {
 		}
 	}
 
-	dstColumnName := getColumnName(move.DstCol)
-	dstRowName := getRowName(move.DstRow)
+	dstColumnName := GetColumnName(move.DstCol)
+	dstRowName := GetRowName(move.DstRow)
 
 	pieceName := getPieceName(piece)
 
@@ -240,10 +240,10 @@ func (move *Move) PrettyPrint(state *GameState) string {
 	}
 
 	if sameColCount > 1 || piece == Pawn {
-		builder.WriteString(getColumnName(move.SrcCol))
+		builder.WriteString(GetColumnName(move.SrcCol))
 	}
 	if sameRowCount > 1 {
-		builder.WriteString(getRowName(move.SrcRow))
+		builder.WriteString(GetRowName(move.SrcRow))
 	}
 
 	if state.Board.PieceAt(move.DstRow, move.DstCol) != Empty {

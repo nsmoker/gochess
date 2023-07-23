@@ -443,9 +443,7 @@ func TestEnPassantLegal(t *testing.T) {
 	state.Board.PlacePiece(3, 3, Pawn, White)
 	state.Board.PlacePiece(3, 4, Pawn, Black)
 
-	pm := Move{SrcRow: 0, SrcCol: 0, DstRow: 3, DstCol: 4}
-
-	state.PreviousMove = &pm
+	state.EpTarget = &BoardCoord{Row: 4, Col: 4}
 
 	ep := Move{SrcRow: 3, SrcCol: 3, DstRow: 4, DstCol: 4}
 
@@ -453,7 +451,7 @@ func TestEnPassantLegal(t *testing.T) {
 		t.Fatalf("%s should be legal for %s", ep.PrettyPrint(&state), state.Board.PrettyPrint())
 	}
 
-	state.PreviousMove = nil
+	state.EpTarget = nil
 
 	if state.IsMoveLegal(ep) {
 		t.Fatalf("%s should not be legal for %s with no previous move", ep.PrettyPrint(&state), state.Board.PrettyPrint())
@@ -568,10 +566,6 @@ func TestTakeTurnSimple(t *testing.T) {
 	if state.Board != want {
 		t.Fatalf("Should get %s after %s. Got %s", want.PrettyPrint(), e4.PrettyPrint(&state), state.Board.PrettyPrint())
 	}
-
-	if *(state.PreviousMove) != e4 {
-		t.Fatalf("Previous move should be %s after %s", e4.PrettyPrint(&state), e4.PrettyPrint(&state))
-	}
 }
 
 func TestTakeTurnPromotion(t *testing.T) {
@@ -650,9 +644,7 @@ func TestTakeTurnEnPassant(t *testing.T) {
 	state.Board.PlacePiece(3, 3, Pawn, White)
 	state.Board.PlacePiece(3, 4, Pawn, Black)
 
-	pm := Move{SrcRow: 0, SrcCol: 0, DstRow: 3, DstCol: 4}
-
-	state.PreviousMove = &pm
+	state.EpTarget = &BoardCoord{Row: 4, Col: 4}
 
 	ep := Move{SrcRow: 3, SrcCol: 3, DstRow: 4, DstCol: 4}
 
@@ -709,5 +701,60 @@ func TestPawnCantMoveThroughOpposingPiece(t *testing.T) {
 	if !cmp.Equal(state.Board, tst) {
 		t.Log(cmp.Diff(state.Board, tst))
 		t.Fatalf("Got %s after %s, want %s", state.Board.PrettyPrint(), illegal.PrettyPrint(&state), tst.PrettyPrint())
+	}
+}
+
+func TestKingCantMoveInMate(t *testing.T) {
+	state, _ := ParseFEN("8/8/8/8/8/3K4/3Q4/3k4 b - - 0 1")
+	kingLoc := state.locateKing(Black)
+	move := Move{
+		SrcRow: kingLoc.Row,
+		SrcCol: kingLoc.Col,
+		DstRow: kingLoc.Row + 1,
+		DstCol: kingLoc.Col,
+	}
+	if state.IsMoveLegal(move) {
+		t.Fatalf("Black should be in checkmate in %s", state.Board.PrettyPrint())
+	}
+
+	rmstate, _ := ParseFEN("8/8/8/8/8/3K4/8/R2k4 b - - 0 1")
+	kingLoc = rmstate.locateKing(Black)
+	move = Move{
+		SrcRow: kingLoc.Row,
+		SrcCol: kingLoc.Col,
+		DstRow: kingLoc.Row,
+		DstCol: kingLoc.Col - 1,
+	}
+
+	if rmstate.IsMoveLegal(move) {
+		t.Fatalf("Black should be in checkmate in %s", rmstate.Board.PrettyPrint())
+	}
+}
+
+func TestIsInCheckmateSimple(t *testing.T) {
+	state, _ := ParseFEN("8/8/8/8/8/3K4/3Q4/3k4 b - - 0 1")
+	if !state.IsInCheckmate(Black) {
+		t.Fatalf("Black should be in checkmate in %s", state.Board.PrettyPrint())
+	}
+}
+
+func TestKingRookMate(t *testing.T) {
+	state, _ := ParseFEN("8/8/8/8/8/3K4/8/R2k4 b - - 0 1")
+	if !state.IsInCheckmate(Black) {
+		t.Fatalf("Black should be in checkmate in %s", state.Board.PrettyPrint())
+	}
+}
+
+func TestSmotheredMate(t *testing.T) {
+	state, _ := ParseFEN("7K/8/8/8/8/8/pppN4/rkr5 b - - 0 1")
+	if !state.IsInCheckmate(Black) {
+		t.Fatalf("Black should be in checkmate in %s", state.Board.PrettyPrint())
+	}
+}
+
+func TestNonMate(t *testing.T) {
+	state, _ := ParseFEN("8/8/8/8/8/3K4/2Q5/3k4 b - - 0 1")
+	if state.IsInCheckmate(Black) {
+		t.Fatalf("Black should not be in checkmate in %s", state.Board.PrettyPrint())
 	}
 }
