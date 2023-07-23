@@ -175,6 +175,7 @@ func ParseFEN(fen string) (GameState, error) {
 	} else {
 		col := 104 - fen[i]
 		row := fen[i+1]
+		state.EpTarget = &BoardCoord{}
 		state.EpTarget.Col = int(col)
 		state.EpTarget.Row = int(row)
 		i += 3

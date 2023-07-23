@@ -23,6 +23,7 @@ func DisplayStateList(stateList *StateLst) *PgnDisplay {
 	ret.Fen = ToFEN(&stateList.State)
 	ret.Algebraic = stateList.Algebraic
 	ret.Comment = stateList.Comment
+	ret.WhitesTurn = stateList.State.IsWhiteTurn
 	ret.Next = nextList
 
 	return &ret
