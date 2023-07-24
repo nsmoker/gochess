@@ -197,6 +197,13 @@ func (oldState *GameState) TakeTurn(move Move) (GameState, bool) {
 	} else {
 		movingPiece := state.Board.PieceAt(move.SrcRow, move.SrcCol)
 		movingSide := state.Board.SideAt(move.SrcRow, move.SrcCol)
+		var otherside Side
+		if movingSide == White {
+			otherside = Black
+		} else {
+			otherside = White
+		}
+
 		if state.moveIsCastlesLong(move) {
 			state.Board.RemovePiece(move.SrcRow, 7)
 			state.Board.PlacePiece(move.SrcRow, 4, Rook, movingSide)
@@ -246,13 +253,13 @@ func (oldState *GameState) TakeTurn(move Move) (GameState, bool) {
 			state.EpTarget = nil
 		}
 
-		if movingPiece == Pawn || state.Board.SideAt(move.DstRow, move.DstCol) != Empty {
-			state.PlyClock += 1
-		} else {
+		if movingPiece == Pawn || oldState.Board.SideAt(move.DstRow, move.DstCol) == otherside {
 			state.PlyClock = 0
+		} else {
+			state.PlyClock += 1
 		}
 
-		state.IsWhiteTurn = !state.IsWhiteTurn
+		state.IsWhiteTurn = !oldState.IsWhiteTurn
 
 		return state, true
 	}
